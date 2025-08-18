@@ -1,0 +1,126 @@
+{
+  "log": { "level": "error" },
+
+  "experimental": {
+    "clash_api": {
+      "external_controller": "0.0.0.0:9090",
+      "external_ui": "metacubexd",
+      "external_ui_download_url": "https://github.com/MetaCubeX/metacubexd/archive/refs/heads/gh-pages.zip",
+      "external_ui_download_detour": "warp-out-o",
+      "default_mode": "global"
+    }
+  },
+
+  "dns": {
+    "servers": [
+      # remote DNS: allowed to go out via warp outbound
+      { "tag": "remote", "type": "tls", "server": "1.1.1.1", "domain_resolver": "local", "detour": "warp-out-o" },
+      # local DNS: detour through warp as well (no direct-out)
+      { "tag": "local",  "type": "tls", "server": "1.0.0.1", "detour": "warp-out-o" }
+    ],
+    "final": "remote",
+    "reverse_mapping": true
+  },
+
+  "route": {
+    "rules": [
+      { "inbound": "mixed-in", "action": "sniff" },
+      { "inbound": "tun-in",   "action": "sniff"  },
+      { "protocol": "dns", "action": "hijack-dns" },
+
+      { "ip_is_private": true, "outbound": "direct-out" },
+      {
+        "ip_cidr": [
+          "0.0.0.0/8","10.0.0.0/8","127.0.0.0/8","169.254.0.0/16",
+          "172.16.0.0/12","192.168.0.0/16","224.0.0.0/4","240.0.0.0/4",
+          "52.80.0.0/16","112.95.0.0/16"
+        ],
+        "outbound": "direct-out"
+      }
+    ],
+    "auto_detect_interface": true,
+    "final": "warp-in-o",
+    "default_domain_resolver": "local"
+  },
+
+  "inbounds": [
+    {
+      "type": "tun",
+      "stack": "gvisor",
+      "tag": "tun-in",
+      "mtu": 1412,
+      "address": ["172.31.100.1/32", "2606:4700:110:82bf:4e06:f866:35d8:406f/128"],
+      "auto_route": true,
+      "strict_route": true
+    },
+    {
+      "type": "mixed",
+      "tag": "mixed-in",
+      "listen": "::",
+      "listen_port": 1080
+    }
+  ],
+
+  "endpoints": [
+    {
+      "type": "wireguard",
+      "tag": "warp-out",
+      "system": true,
+      "name": "wg-warp-out",
+      "mtu": 1412,
+      "address": ["172.16.0.2/32", "2606:4700:110:8a8b:d731:98ec:c2f3:2b08/128"],
+      "private_key": "aH1HrQm7Y3pWeJYZ1/mbAgwCrr+/oTEwqO1TdDGDfng=",
+      "peers": [
+        {
+          "address": "162.159.192.1",
+          "port": 2408,
+          "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+          "allowed_ips": ["0.0.0.0/0", "::/0"],
+          "reserved": [249, 190, 168]
+        }
+      ],
+      # Resolve peer name via local resolver for other lookups, but peer uses fixed IP.
+      "domain_resolver": "local",
+      "workers": 4
+    },
+
+    {
+      "type": "wireguard",
+      "tag": "warp-in",
+      "system": true,
+      "name": "wg-warp-in",
+      "mtu": 1332,
+      "address": ["172.16.0.2/32", "2606:4700:110:861d:9c:d36a:5cc:36dc/128"],
+      "private_key": "8D9gmKTtGvNFCnoQ4mfjk5loe1JgO3gBi20hTPIl7Vc=",
+      "peers": [
+        {
+          "address": "162.159.192.1",
+          "port": 2408,
+          "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
+          "allowed_ips": ["0.0.0.0/0", "::/0"],
+          "reserved": [240, 2, 221]
+        }
+      ],
+      # inner endpoint dials via the outer warp outbound
+      "domain_resolver": "local",
+      "detour": "warp-out-o",
+      "workers": 4
+    }
+  ],
+
+  "outbounds": [
+    { "type": "direct", "tag": "direct-out" },
+
+    {
+      "type": "direct",
+      "tag": "warp-out-o",
+      "bind_interface": "wg-warp-out"
+    },
+
+    {
+      "type": "direct",
+      "tag": "warp-in-o",
+      "bind_interface": "wg-warp-in"
+    }
+  ]
+}
