@@ -66,7 +66,7 @@ else
 fi
 
 fetch_warp() {
-    curl -fsSL bit.ly/create-cloudflare-warp | sh -s
+    curl -fsSL https://raw.githubusercontent.com/Mon-ius/XTPU/refs/heads/main/cloudflare/create-cloudflare-warp.sh | sh -s
 }
 
 RES_OUT=$(fetch_warp)
@@ -112,9 +112,7 @@ cat <<EOF > ./config.json
 
   "dns": {
     "servers": [
-      # remote DNS: allowed to go out via warp outbound
       { "tag": "remote", "type": "tls", "server": "1.1.1.1", "domain_resolver": "local", "detour": "${DNS_DETOUR}" },
-      # local DNS: detour through warp as well (no direct-out)
       { "tag": "local",  "type": "tls", "server": "1.0.0.1", "detour": "${DNS_DETOUR}" }
     ],
     "final": "remote",
@@ -147,7 +145,7 @@ cat <<EOF > ./config.json
       "type": "tun",
       "stack": "gvisor",
       "tag": "tun-in",
-      "mtu": 1412,
+      "mtu": 1280,
       ${TUN_ADDR},
       "auto_route": true,
       "strict_route": true
@@ -166,7 +164,7 @@ cat <<EOF > ./config.json
       "tag": "warp-out",
       "system": true,
       "name": "${WARP_OUT_IF}",
-      "mtu": 1412,
+      "mtu": 1280,
       "address": ${OUT_ADDR},
       "private_key": "${CF_OUT_PRIVATE_KEY}",
       "peers": [
@@ -178,7 +176,6 @@ cat <<EOF > ./config.json
           "reserved": ${reserved_out}
         }
       ],
-      # Resolve peer name via local resolver for other lookups, but peer uses fixed IP.
       "domain_resolver": "local",
       "workers": 4
     },
@@ -188,7 +185,7 @@ cat <<EOF > ./config.json
       "tag": "warp-in",
       "system": true,
       "name": "${WARP_IN_IF}",
-      "mtu": 1332,
+      "mtu": 1280,
       "address": ${IN_ADDR},
       "private_key": "${CF_IN_PRIVATE_KEY}",
       "peers": [
@@ -200,7 +197,6 @@ cat <<EOF > ./config.json
           "reserved": ${reserved_in}
         }
       ],
-      # inner endpoint dials via the outer warp outbound
       "domain_resolver": "local",
       "detour": "warp-out-o",
       "workers": 4
