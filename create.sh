@@ -93,7 +93,7 @@ if [ "$DISABLE_IPV6" -eq 1 ]; then
 else
     OUT_ADDR="[\"${CF_OUT_ADDR_V4}/32\", \"${CF_OUT_ADDR_V6}/128\"]"
     IN_ADDR="[\"${CF_IN_ADDR_V4}/32\", \"${CF_IN_ADDR_V6}/128\"]"
-    TUN_ADDR='"address": ["172.31.100.1/32", "2606:4700:110:82bf:4e06:f866:35d8:406f/128"]'
+    TUN_ADDR='"address": ["172.31.100.1/24", "2606:4700:110:82bf:4e06:f866:35d8:406f/64"]'
 fi
 
 cat <<EOF > ./config.json
