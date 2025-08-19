@@ -143,7 +143,7 @@ cat <<EOF > ./config.json
   "inbounds": [
     {
       "type": "tun",
-      "stack": "gvisor",
+      "stack": "system",
       "tag": "tun-in",
       "mtu": 1280,
       ${TUN_ADDR},
