@@ -1,9 +1,4 @@
 #!/bin/sh
-# sing-box 1.12+ / 1.14-ready WARP-in-WARP config generator
-# - endpoints named warp-out / warp-in (no -ep)
-# - outbounds named warp-out-o / warp-in-o (these are dialers; detour must point to them)
-# - resolves engage.cloudflareclient.com to IP and uses that for peers
-# - fixed IPv6 leak: peers allowed_ips include ::/0
 set -e
 
 sleep 3
@@ -17,14 +12,11 @@ WARP_PORT="${WARP_PORT:-$_WARP_PORT}"
 NET_PORT="${NET_PORT:-$_NET_PORT}"
 DISABLE_IPV6="${DISABLE_IPV6:-0}"
 
-# choose where DNS should detour (change to warp-in-o if you prefer inner)
 DNS_DETOUR="${DNS_DETOUR:-warp-out-o}"
 
-# Interface names for system WireGuard endpoints (used by bind_interface outbounds)
 WARP_OUT_IF="${WARP_OUT_IF:-wg-warp-out}"
 WARP_IN_IF="${WARP_IN_IF:-wg-warp-in}"
 
-# Resolve a name to IPv4/IPv6 (prefer v4). Uses getent, then dig, then host.
 _resolve_ips() {
   name="$1"
   v4=""
@@ -51,12 +43,10 @@ _resolve_ips() {
   printf "%s %s" "$v4" "$v6"
 }
 
-# Try to resolve the WARP server now so endpoints can use IP instead of hostname.
 read RESOLVED_V4 RESOLVED_V6 <<EOF
 $(_resolve_ips "$_WARP_SERVER")
 EOF
 
-# Prefer IPv4 when present, else IPv6, else fall back to hostname
 if [ -n "$RESOLVED_V4" ]; then
   WARP_SERVER_ADDR="$RESOLVED_V4"
 elif [ -n "$RESOLVED_V6" ]; then
