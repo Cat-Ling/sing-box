@@ -1,4 +1,4 @@
-name: Update
+name: generate
 
 on:
   schedule:
@@ -15,7 +15,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Configure
+      - name: Configuring
         run: |
           git config --global user.email "actions@github.com"
           git config --global user.name "github-actions[bot]"
@@ -25,9 +25,16 @@ jobs:
           chmod +x ./create.sh
           ./create.sh
 
+      - name: Encrypt
+        env:
+          PASSWORD: ${{ secrets.PASSWORD }}
+        run: |
+          zip -P "$PASSWORD" config.zip config.json
+          rm config.json
+
       - name: Commit
         run: |
-          git add config.json || true
+          git add config.zip || true
           if git diff --staged --quiet; then exit 0; fi
-          git commit -m "update config.json"
+          git commit -m "update encrypted config.zip"
           git push origin HEAD
