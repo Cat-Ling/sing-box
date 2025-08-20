@@ -66,15 +66,15 @@
       "system": true,
       "name": "wg-warp-out",
       "mtu": 1280,
-      "address": ["172.16.0.2/32", "2606:4700:110:869c:f95a:fa31:87e6:e3d/128"],
-      "private_key": "GDtVc05IJK0Drj1r3jsNFN+fy4dlDtkN8hWprVQIb3M=",
+      "address": ["172.16.0.2/32", "2606:4700:110:8911:ad63:e785:e457:4687/128"],
+      "private_key": "UIDUSybKLiEq4Lvrlz+uBpP5CNu5t5fGCgKFz6eeT1w=",
       "peers": [
         {
           "address": "162.159.192.1",
           "port": 2408,
           "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
           "allowed_ips": ["0.0.0.0/0", "::/0"],
-          "reserved": [44, 151, 196]
+          "reserved": [223, 58, 128]
         }
       ],
       "domain_resolver": "local",
@@ -87,15 +87,15 @@
       "system": true,
       "name": "wg-warp-in",
       "mtu": 1280,
-      "address": ["172.16.0.2/32", "2606:4700:110:8ebc:6680:60b0:20ee:2ad8/128"],
-      "private_key": "oMa1Oyjx4y228vmFuEHNu67Vz4aqoR/HnVaeFAchqVU=",
+      "address": ["172.16.0.2/32", "2606:4700:110:8d39:2783:1301:9323:ad48/128"],
+      "private_key": "6Mc2Oa+CDKYz69emcKPKNyQhNwraaR7mJ7ZBimtVY28=",
       "peers": [
         {
           "address": "162.159.192.1",
           "port": 2408,
           "public_key": "bmXOC+F1FxEMF9dyiK2H5/1SUtzH0JuVo51h2wPfgyo=",
           "allowed_ips": ["0.0.0.0/0", "::/0"],
-          "reserved": [106, 21, 100]
+          "reserved": [199, 62, 202]
         }
       ],
       "domain_resolver": "local",
